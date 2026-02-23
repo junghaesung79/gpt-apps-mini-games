@@ -4,7 +4,7 @@ import { registerNumberGuessTools } from './games/number-guess/mcp.js';
 
 // 생성할 서버 정보
 const server = new McpServer({
-  name: 'mcp-games-server',
+  name: 'gpt-mini-games',
   version: '1.0.0',
 });
 
