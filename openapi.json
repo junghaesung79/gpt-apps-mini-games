@@ -1,0 +1,140 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "GPT Number Guessing Game API",
+    "description": "API for playing the Number Guessing Game in GPT Apps.",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "https://your-server-domain.com",
+      "description": "Production server"
+    }
+  ],
+  "paths": {
+    "/api/number-guess/start": {
+      "post": {
+        "operationId": "startNumberGuessingGame",
+        "summary": "Start a new Number Guessing Game and get the sessionId",
+        "responses": {
+          "200": {
+            "description": "Game started successfully. Remember the sessionId for future requests.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "sessionId": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/number-guess/guess": {
+      "post": {
+        "operationId": "makeNumberGuess",
+        "summary": "Submit a player's guessed number",
+        "parameters": [
+          {
+            "name": "x-session-id",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "The session ID received from starting the game"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "guess": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 100,
+                    "description": "The number guessed by the player (1-100)"
+                  }
+                },
+                "required": [
+                  "guess"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Game result (Up/Down, Success, or Game Over)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/number-guess/status": {
+      "get": {
+        "operationId": "getNumberGuessStatus",
+        "summary": "Check the current status and attempts of the game",
+        "parameters": [
+          {
+            "name": "x-session-id",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "The session ID corresponding to the current game"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Status message with remaining attempts",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
