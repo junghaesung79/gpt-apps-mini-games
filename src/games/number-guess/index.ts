@@ -66,6 +66,10 @@ export class NumberGuessGame {
     };
   }
 
+  public getState() {
+    return this.state;
+  }
+
   public getStatus(): GameResult {
     if (!this.state.isActive) {
       return { success: false, message: '진행 중인 게임이 없습니다.' };

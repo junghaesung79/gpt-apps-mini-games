@@ -5,62 +5,69 @@ import { SSEServerTransport } from '@modelcontextprotocol/sdk/server/sse.js';
 import { registerNumberGuessTools } from './games/number-guess/mcp.js';
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = Number(process.env.PORT) || 3000;
 
-app.use(cors()); // CORS 허용 (GPT 앱과 통신 시 필수)
+app.use(cors());
+app.use(express.json()); // JSON Body Parser 추가
 
-// MCP 서버 인스턴스 생성
+// MCP 서버 설정 (도구 정보를 가지고 있는 마스터 서버)
 const server = new McpServer({
   name: 'mcp-games-server',
   version: '1.0.0',
 });
 
-// 도구 등록
+// 모든 게임 도구 등록
 registerNumberGuessTools(server);
 
 // --- SSE Transport 관리 ---
-// 연결된 각 세션(클라이언트)별 transport 객체를 저장
-const transports = new Map<string, SSEServerTransport>();
+// 세션별로 활성화된 transport 객체들을 보관
+const transportMap = new Map<string, SSEServerTransport>();
 
-// 1. SSE 연결 수립 (GPT가 맨 처음 접속하는 엔드포인트)
+// 1. SSE 연결 수립
 app.get('/sse', async (req, res) => {
-  // 고유한 세션 ID 발급
-  const sessionId = Math.random().toString(36).substring(7);
+  // Transport 인스턴스를 생성하면 내부적으로 Session ID(UUID)가 생성됩니다.
+  const transport = new SSEServerTransport('/messages', res);
+  const sessionId = transport.sessionId;
 
-  // 클라이언트가 메시지를 보낼 때 자신만의 세션 ID를 파라미터로 붙여서 찾을 수 있게 해줍니다.
-  const transport = new SSEServerTransport(`/messages?sessionId=${sessionId}`, res);
-  transports.set(sessionId, transport);
+  transportMap.set(sessionId, transport);
 
-  await server.connect(transport);
+  // 서버 인스턴스에 transport 연결
+  try {
+    await server.connect(transport);
+  } catch (error) {
+    console.error(`Failed to connect transport for session ${sessionId}:`, error);
+  }
 
-  // 클라이언트 측 연결 해제 대응
+  // 연결 종료 시 정리
   req.on('close', () => {
-    console.log(`SSE connection closed by client (sessionId: ${sessionId})`);
-    transports.delete(sessionId);
+    console.log(`SSE connection closed: ${sessionId}`);
+    transportMap.delete(sessionId);
   });
 });
 
-// 2. 메시지 수신 (GPT가 Tool 실행 등을 요청하는 엔드포인트)
+// 2. 메시지 수신 (id별로 전송)
 app.post('/messages', async (req, res) => {
   const sessionId = req.query.sessionId as string;
-  const transport = transports.get(sessionId);
+  const transport = transportMap.get(sessionId);
+
+  console.log(`[POST /messages] Received request for sessionId: ${sessionId}`);
+  console.log(`[POST /messages] Currently active sessions: ${Array.from(transportMap.keys()).join(', ')}`);
 
   if (!transport) {
-    res.status(404).send('Session not found or expired.');
+    res.status(404).send('Invalid or expired sessionId');
     return;
   }
 
-  // MCP 통신을 위해 메시지를 Transport로 전달
-  await transport.handlePostMessage(req, res);
+  // 해당 세션의 transport로 메시지 전달 (express.json()에 의해 파싱된 body를 직접 전달)
+  await transport.handlePostMessage(req, res, req.body);
 });
 
 // --- Health Check ---
 app.get('/health', (req, res) => {
-  res.json({ status: 'ok', message: 'GPT Games MCP Proxy (SSE) is running' });
+  res.json({ status: 'ok', activeSessions: transportMap.size });
 });
 
-app.listen(PORT, () => {
-  console.log(`🚀 MCP Games Server (SSE) is running on http://localhost:${PORT}`);
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`🚀 MCP Games Server (Fixed SSE) is running on http://0.0.0.0:${PORT}`);
   console.log(`   SSE Endpoint: http://localhost:${PORT}/sse`);
-  console.log(`   Health Check: http://localhost:${PORT}/health`);
 });
