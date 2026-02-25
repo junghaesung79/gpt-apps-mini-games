@@ -3,6 +3,7 @@ import cors from 'cors';
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { SSEServerTransport } from '@modelcontextprotocol/sdk/server/sse.js';
 import { registerNumberGuessTools } from './games/number-guess/mcp.js';
+import { registerTicTacToeTools } from './games/tic-tac-toe/mcp.js';
 
 const app = express();
 const PORT = Number(process.env.PORT) || 3000;
@@ -18,6 +19,7 @@ const server = new McpServer({
 
 // 모든 게임 도구 등록
 registerNumberGuessTools(server);
+registerTicTacToeTools(server);
 
 // --- SSE Transport 관리 ---
 // 세션별로 활성화된 transport 객체들을 보관

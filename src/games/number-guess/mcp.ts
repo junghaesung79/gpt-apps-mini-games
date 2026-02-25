@@ -45,44 +45,71 @@ export function registerNumberGuessTools(server: McpServer) {
     }
   );
 
-  server.tool(
+  server.registerTool(
     'start_number_guess',
-    'Start a new Number Guessing Game (1-100)',
-    { destructiveHint: true },
+    {
+      description: 'Start a new Number Guessing Game (1-100)',
+      annotations: { destructiveHint: true },
+      _meta: {
+        "openai/outputTemplate": "ui://widget/index.html",
+        ui: { resourceUri: "ui://widget/index.html" }
+      }
+    },
     async () => {
       const result = game.start();
       return {
         content: [{ type: 'text', text: result.message }],
-        _meta: { "openai/outputTemplate": "ui://widget/index.html" }
+        _meta: {
+          "openai/outputTemplate": "ui://widget/index.html",
+          ui: { resourceUri: "ui://widget/index.html" }
+        }
       };
     }
   );
 
-  server.tool(
+  server.registerTool(
     'make_guess',
-    'Guess a number in the Number Guessing Game',
     {
-      guess: z.number().int().min(1).max(100).describe('Your number guess (1-100)'),
+      description: 'Guess a number in the Number Guessing Game',
+      inputSchema: {
+        guess: z.number().int().min(1).max(100).describe('Your number guess (1-100)')
+      },
+      annotations: { destructiveHint: true },
+      _meta: {
+        "openai/outputTemplate": "ui://widget/index.html",
+        ui: { resourceUri: "ui://widget/index.html" }
+      }
     },
-    { destructiveHint: true },
     async ({ guess }) => {
       const result = game.guess(guess);
       return {
         content: [{ type: 'text', text: result.message }],
-        _meta: { "openai/outputTemplate": "ui://widget/index.html" }
+        _meta: {
+          "openai/outputTemplate": "ui://widget/index.html",
+          ui: { resourceUri: "ui://widget/index.html" }
+        }
       };
     }
   );
 
-  server.tool(
+  server.registerTool(
     'get_number_guess_status',
-    'Get the current status of the Number Guessing Game',
-    { readOnlyHint: true },
+    {
+      description: 'Get the current status of the Number Guessing Game',
+      annotations: { readOnlyHint: true },
+      _meta: {
+        "openai/outputTemplate": "ui://widget/index.html",
+        ui: { resourceUri: "ui://widget/index.html" }
+      }
+    },
     async () => {
       const result = game.getStatus();
       return {
         content: [{ type: 'text', text: result.message }],
-        _meta: { "openai/outputTemplate": "ui://widget/index.html" }
+        _meta: {
+          "openai/outputTemplate": "ui://widget/index.html",
+          ui: { resourceUri: "ui://widget/index.html" }
+        }
       };
     }
   );
