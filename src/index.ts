@@ -13,7 +13,7 @@ app.use(express.json()); // JSON Body Parser 추가
 
 // MCP 서버 설정 (도구 정보를 가지고 있는 마스터 서버)
 const server = new McpServer({
-  name: 'mcp-games-server',
+  name: 'gpt-mini-games-server',
   version: '1.0.0',
 });
 

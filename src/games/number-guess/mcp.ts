@@ -4,6 +4,18 @@ import { NumberGuessGame } from './index.js';
 import fs from 'fs';
 import path from 'path';
 
+function getEncodedState(game: NumberGuessGame) {
+  const currentState = game.getState();
+  const injectionState = {
+    gameType: 'number-guess',
+    message: game.getStatus().message || 'Waiting for first guess...',
+    attempts: currentState.attempts,
+    maxAttempts: currentState.maxAttempts,
+    isGameOver: !currentState.isActive && currentState.attempts > 0,
+  };
+  return Buffer.from(encodeURIComponent(JSON.stringify(injectionState))).toString('base64');
+}
+
 export function registerNumberGuessTools(server: McpServer) {
   // 인메모리로 게임 상태를 유지할 싱글톤 인스턴스 (학습용이므로 서버당 1개 상태로 시작)
   const game = new NumberGuessGame();
@@ -52,16 +64,20 @@ export function registerNumberGuessTools(server: McpServer) {
       annotations: { destructiveHint: true },
       _meta: {
         "openai/outputTemplate": "ui://widget/index.html",
-        ui: { resourceUri: "ui://widget/index.html" }
+        ui: {
+          resourceUri: "ui://widget/index.html",
+          csp: "default-src 'none'; script-src 'unsafe-inline' 'unsafe-eval'; style-src 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; connect-src 'self'",
+          domain: "localhost"
+        }
       }
     },
     async () => {
       const result = game.start();
+      const encoded = getEncodedState(game);
       return {
         content: [{ type: 'text', text: result.message }],
         _meta: {
-          "openai/outputTemplate": "ui://widget/index.html",
-          ui: { resourceUri: "ui://widget/index.html" }
+          "openai/outputTemplate": `ui://widget/index.html#${encoded}`,
         }
       };
     }
@@ -77,16 +93,20 @@ export function registerNumberGuessTools(server: McpServer) {
       annotations: { destructiveHint: true },
       _meta: {
         "openai/outputTemplate": "ui://widget/index.html",
-        ui: { resourceUri: "ui://widget/index.html" }
+        ui: {
+          resourceUri: "ui://widget/index.html",
+          csp: "default-src 'none'; script-src 'unsafe-inline' 'unsafe-eval'; style-src 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; connect-src 'self'",
+          domain: "localhost"
+        }
       }
     },
     async ({ guess }) => {
       const result = game.guess(guess);
+      const encoded = getEncodedState(game);
       return {
         content: [{ type: 'text', text: result.message }],
         _meta: {
-          "openai/outputTemplate": "ui://widget/index.html",
-          ui: { resourceUri: "ui://widget/index.html" }
+          "openai/outputTemplate": `ui://widget/index.html#${encoded}`,
         }
       };
     }
@@ -99,16 +119,20 @@ export function registerNumberGuessTools(server: McpServer) {
       annotations: { readOnlyHint: true },
       _meta: {
         "openai/outputTemplate": "ui://widget/index.html",
-        ui: { resourceUri: "ui://widget/index.html" }
+        ui: {
+          resourceUri: "ui://widget/index.html",
+          csp: "default-src 'none'; script-src 'unsafe-inline' 'unsafe-eval'; style-src 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; connect-src 'self'",
+          domain: "localhost"
+        }
       }
     },
     async () => {
       const result = game.getStatus();
+      const encoded = getEncodedState(game);
       return {
         content: [{ type: 'text', text: result.message }],
         _meta: {
-          "openai/outputTemplate": "ui://widget/index.html",
-          ui: { resourceUri: "ui://widget/index.html" }
+          "openai/outputTemplate": `ui://widget/index.html#${encoded}`,
         }
       };
     }

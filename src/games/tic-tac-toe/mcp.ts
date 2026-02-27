@@ -4,6 +4,18 @@ import { TicTacToeGame } from './index.js';
 import fs from 'fs';
 import path from 'path';
 
+function getEncodedState(game: TicTacToeGame) {
+  const currentState = game.getState();
+  const injectionState = {
+    gameType: 'tic-tac-toe',
+    message: currentState.message,
+    board: currentState.board,
+    status: currentState.status,
+    isGameOver: currentState.status !== 'playing'
+  };
+  return Buffer.from(encodeURIComponent(JSON.stringify(injectionState))).toString('base64');
+}
+
 export function registerTicTacToeTools(server: McpServer) {
   const game = new TicTacToeGame();
 
@@ -51,16 +63,20 @@ export function registerTicTacToeTools(server: McpServer) {
       annotations: { destructiveHint: true },
       _meta: {
         "openai/outputTemplate": "ui://widget/tic-tac-toe.html",
-        ui: { resourceUri: "ui://widget/tic-tac-toe.html" }
+        ui: {
+          resourceUri: "ui://widget/tic-tac-toe.html",
+          csp: "default-src 'none'; script-src 'unsafe-inline' 'unsafe-eval'; style-src 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; connect-src 'self'",
+          domain: "localhost"
+        }
       }
     },
     async () => {
       const result = game.start();
+      const encoded = getEncodedState(game);
       return {
         content: [{ type: 'text', text: result.message }],
         _meta: {
-          "openai/outputTemplate": "ui://widget/tic-tac-toe.html",
-          ui: { resourceUri: "ui://widget/tic-tac-toe.html" }
+          "openai/outputTemplate": `ui://widget/tic-tac-toe.html#${encoded}`,
         }
       };
     }
@@ -76,16 +92,20 @@ export function registerTicTacToeTools(server: McpServer) {
       annotations: { destructiveHint: true },
       _meta: {
         "openai/outputTemplate": "ui://widget/tic-tac-toe.html",
-        ui: { resourceUri: "ui://widget/tic-tac-toe.html" }
+        ui: {
+          resourceUri: "ui://widget/tic-tac-toe.html",
+          csp: "default-src 'none'; script-src 'unsafe-inline' 'unsafe-eval'; style-src 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; connect-src 'self'",
+          domain: "localhost"
+        }
       }
     },
     async ({ position }) => {
       const result = game.play(position);
+      const encoded = getEncodedState(game);
       return {
         content: [{ type: 'text', text: result.message }],
         _meta: {
-          "openai/outputTemplate": "ui://widget/tic-tac-toe.html",
-          ui: { resourceUri: "ui://widget/tic-tac-toe.html" }
+          "openai/outputTemplate": `ui://widget/tic-tac-toe.html#${encoded}`,
         }
       };
     }
@@ -98,16 +118,20 @@ export function registerTicTacToeTools(server: McpServer) {
       annotations: { readOnlyHint: true },
       _meta: {
         "openai/outputTemplate": "ui://widget/tic-tac-toe.html",
-        ui: { resourceUri: "ui://widget/tic-tac-toe.html" }
+        ui: {
+          resourceUri: "ui://widget/tic-tac-toe.html",
+          csp: "default-src 'none'; script-src 'unsafe-inline' 'unsafe-eval'; style-src 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; connect-src 'self'",
+          domain: "localhost"
+        }
       }
     },
     async () => {
       const result = game.getState();
+      const encoded = getEncodedState(game);
       return {
         content: [{ type: 'text', text: result.message }],
         _meta: {
-          "openai/outputTemplate": "ui://widget/tic-tac-toe.html",
-          ui: { resourceUri: "ui://widget/tic-tac-toe.html" }
+          "openai/outputTemplate": `ui://widget/tic-tac-toe.html#${encoded}`,
         }
       };
     }
