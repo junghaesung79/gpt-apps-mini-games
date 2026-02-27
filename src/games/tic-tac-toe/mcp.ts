@@ -77,6 +77,9 @@ export function registerTicTacToeTools(server: McpServer) {
         content: [{ type: 'text', text: result.message }],
         _meta: {
           "openai/outputTemplate": `ui://widget/tic-tac-toe.html#${encoded}`,
+          ui: {
+            resourceUri: `ui://widget/tic-tac-toe.html#${encoded}`,
+          }
         }
       };
     }
@@ -106,6 +109,9 @@ export function registerTicTacToeTools(server: McpServer) {
         content: [{ type: 'text', text: result.message }],
         _meta: {
           "openai/outputTemplate": `ui://widget/tic-tac-toe.html#${encoded}`,
+          ui: {
+            resourceUri: `ui://widget/tic-tac-toe.html#${encoded}`,
+          }
         }
       };
     }
@@ -132,6 +138,9 @@ export function registerTicTacToeTools(server: McpServer) {
         content: [{ type: 'text', text: result.message }],
         _meta: {
           "openai/outputTemplate": `ui://widget/tic-tac-toe.html#${encoded}`,
+          ui: {
+            resourceUri: `ui://widget/tic-tac-toe.html#${encoded}`,
+          }
         }
       };
     }

@@ -18,7 +18,7 @@ export function TicTacToeGame() {
   const handleCellClick = (index: number) => {
     if (state.isGameOver || state.board[index] !== null) return;
 
-    const runCommand = `Play tic-tac-toe at index ${index}`;
+    const runCommand = `Use play_tic_tac_toe tool with position=${index}`;
     // Support auto-sending in true SDK environment
     if (window.openai) {
       window.openai.sendMessage(runCommand);

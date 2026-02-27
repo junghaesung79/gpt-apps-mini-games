@@ -78,6 +78,9 @@ export function registerNumberGuessTools(server: McpServer) {
         content: [{ type: 'text', text: result.message }],
         _meta: {
           "openai/outputTemplate": `ui://widget/index.html#${encoded}`,
+          ui: {
+            resourceUri: `ui://widget/index.html#${encoded}`,
+          }
         }
       };
     }
@@ -107,6 +110,9 @@ export function registerNumberGuessTools(server: McpServer) {
         content: [{ type: 'text', text: result.message }],
         _meta: {
           "openai/outputTemplate": `ui://widget/index.html#${encoded}`,
+          ui: {
+            resourceUri: `ui://widget/index.html#${encoded}`,
+          }
         }
       };
     }
@@ -133,6 +139,9 @@ export function registerNumberGuessTools(server: McpServer) {
         content: [{ type: 'text', text: result.message }],
         _meta: {
           "openai/outputTemplate": `ui://widget/index.html#${encoded}`,
+          ui: {
+            resourceUri: `ui://widget/index.html#${encoded}`,
+          }
         }
       };
     }

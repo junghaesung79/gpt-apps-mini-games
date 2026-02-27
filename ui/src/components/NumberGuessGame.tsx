@@ -26,7 +26,7 @@ export function NumberGuessGame() {
 
   const handleSubmit = () => {
     if (!inputVal || state.isGameOver) return;
-    const runCommand = `I guess ${inputVal}`;
+    const runCommand = `Use make_guess tool with guess=${inputVal} for Number Baseball`;
     // In actual ChatGPT context, window.openai.sendMessage would be used here over alert
     if (window.openai) {
       window.openai.sendMessage(runCommand);

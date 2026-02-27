@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { NumberGuessGame } from './components/NumberGuessGame';
 import { TicTacToeGame } from './components/TicTacToeGame';
 import { DevPanel } from './components/DevPanel';
@@ -20,6 +20,25 @@ declare global {
 
 function App() {
   const [, setRefreshKey] = useState(0);
+
+  useEffect(() => {
+    const handleHashChange = () => {
+      try {
+        if (window.location.hash && window.location.hash.length > 1) {
+          const hashData = window.location.hash.slice(1);
+          const decodedStr = decodeURIComponent(atob(hashData));
+          window.GAME_STATE = JSON.parse(decodedStr);
+          setRefreshKey(prev => prev + 1); // Force re-render with new state
+        }
+      } catch (e) {
+        console.error("Failed to parse state from hashchange:", e);
+      }
+    };
+
+    window.addEventListener('hashchange', handleHashChange);
+    return () => window.removeEventListener('hashchange', handleHashChange);
+  }, []);
+
   const gameType = window.GAME_STATE?.gameType || 'number-guess';
 
   return (
